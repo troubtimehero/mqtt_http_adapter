@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>发送MQTT指令</title>
+    <script>
+
+    function changeType()
+    {
+        var cmd_type = document.getElementById("cmd_type").value;
+        var bHidden = cmd_type != "through";
+        document.getElementById("p_func").hidden = bHidden;
+        document.getElementById("p_check").hidden = bHidden;
+    };
+
+    function get_data()
+    {
+        var n_words = new Array();
+        n_words.push("cmd_type="+document.getElementById("cmd_type").value);
+        n_words.push("client_id="+document.getElementById("client_id").value);
+        n_words.push("func="+document.getElementById("func").value);
+        n_words.push("payload="+document.getElementById("payload").value);
+        chk = document.getElementById("no_check");
+        if (chk.checked)
+            n_words.push("no_check=" + chk.value);
+        else
+            n_words.push("no_check=");
+        n_words.push("password="+document.getElementById("password").value);
+        var res = n_words.join("&");
+        return res;
+    }
+
+    function loadXMLDoc()
+    {
+        document.getElementById("result").innerHTML = "";
+        var xml_http;
+        if (window.XMLHttpRequest)
+        {
+            //  IE7+, Firefox, Chrome, Opera, Safari 浏览器执行代码
+            xml_http=new XMLHttpRequest();
+        }
+        else
+        {
+            // IE6, IE5 浏览器执行代码
+            xml_http=new ActiveXObject("Microsoft.XMLHTTP");
+        }
+        xml_http.onreadystatechange=function()
+        {
+            if (xml_http.readyState==4 && xml_http.status==200)
+            {
+                document.getElementById("result").innerHTML = "返回结果：" + xml_http.responseText;
+            }
+        }
+        xml_http.open("POST", '/mqtt', true);
+        xml_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xml_http.send(get_data());
+    };
+
+    </script>
+
+</head>
+<body>
+
+<div style="width:100%">
+
+<div>
+<h1 style="margin-bottom:0; text-align:center">发送MQTT指令</h1></div>
+
+<div style="height:100%;width:25%;float:left;">
+    .
+</div>
+
+<div id="content" style="height:100%;width:50%;float:left;">
+
+<form action="" method="post" novalidate="novalidate">
+<!--    #用来实现在配置中激活的csrf保护-->
+<!--    {{ form.hidden_tag() }}-->
+    <p>
+        {{ form.cmd_type.label }}<br>
+        {{ form.cmd_type(id='cmd_type', onchange= "changeType()") }}
+    </p>
+    <p>
+        {{ form.client_id.label }}<br>
+        {{ form.client_id(size=32) }}
+        {% for error in form.client_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    <p id="p_func">
+        {{ form.func.label }}<br>
+        {{ form.func(size=32) }}
+        {% for error in form.func.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p id="p_check">{{ form.no_check() }}{{ form.no_check.label }}</p>
+    <p>
+        {{ form.payload.label }}<br>
+        {{ form.payload(size=32) }}
+        {% for error in form.payload.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}
+        {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p>
+<!--        {{ form.submit() }}-->
+        <button type="button" onclick="loadXMLDoc()">发送</button>
+    </p>
+</form>
+
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <ur>
+            {% for message in messages %}
+                <li style="color:red">{{ message }}</li>
+            {% endfor %}
+        </ur>
+    {% endif %}
+{% endwith %}
+
+    <h3 id="result"></h3>
+
+</div>
+
+<div style="height:100%;width:25%;float:left;text-align:right">
+    .
+</div>
+
+<!--<div id="footer" style="background-color:#FFA500;clear:both;text-align:center;">-->
+<!--版权 © runoob.com</div>-->
+
+</div>
+
+</body>
+</html>
