@@ -10,6 +10,7 @@
 
 # 导入pymysql模块
 import pymysql
+from my_mqtt.my_tools import log_err
 
 pymysql.install_as_MySQLdb()
 
@@ -41,7 +42,7 @@ class MyDatabase(object):
 
     @staticmethod
     def insert(tar, val, *args):
-        return f'INSERT INTO {tar} VALUES(' + args.join(',') + ')'
+        return f'INSERT INTO {tar} VALUES(' + ','.join(args) + ')'
 
     @staticmethod
     def update(tar, val, *args):
@@ -55,7 +56,9 @@ class MyDatabase(object):
                 res = cursor.execute(sql)
                 return res, cursor.fetchall()
             except Exception as err:
+                log_err(err)
                 return -1, None
 
 
+# settings.DATABASE_ADDRESS = 'root:abcdef@192.168.2.84:3306/tz_game?charset=utf8'
 my_db = MyDatabase('192.168.2.84', 3306, 'root', 'abcdef', 'tz_game')

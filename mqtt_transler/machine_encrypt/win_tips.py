@@ -14,6 +14,7 @@ import qrcode
 import easygui
 
 import settings
+from my_mqtt.my_tools import log_err
 
 
 def tips_create_code(info, code):
@@ -30,6 +31,7 @@ def tips_create_code(info, code):
             with open(settings.ACTIVATE_CODE_QRCODE, 'w'):
                 continue
 
+    log_err(f'MQTT通讯模块未注册启动失败，序列号为：{info}')
     print(info)
     while True:
         box = easygui.enterbox(msg=f"MQTT通讯模块启动失败，请输入注册码后点 OK\n\n序列号：{info}",    # \n二维码已生成在：{settings.ACTIVATE_CODE_QRCODE}
@@ -42,4 +44,5 @@ def tips_create_code(info, code):
 
 
 def tips_only(msg, title):
+    log_err(f'{title} : {msg}')
     easygui.msgbox(msg=msg, title=title, ok_button='OK')

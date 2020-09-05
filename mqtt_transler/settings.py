@@ -5,6 +5,9 @@
 # 登录设置
 import os
 
+from enum import Enum
+from enum import unique
+
 
 # True：所有指令不作处理，只做中介透传，由系统处理所有业务逻辑
 # False：本应用负责处理一部分已规定的业务逻辑，未知指令直接忽略
@@ -57,14 +60,41 @@ HOST_TOPICS = [
     TP_ALL,
 ]
 
+# from deprecated.sphinx import deprecated
+# @deprecated(version='1.0', reason="This function will be removed soon")
+# import warnings
+# warnings.warn('version=1.0', DeprecationWarning)
 
 # 需要订阅的设备，应根据每个场地实际的设备进行设置，或从数据库加载
-CLIENT_IDS = [
-    "1010016342",
-    "1010016346",
-    "1010016349",
-    "1010016350",
-]
+# Version1.0：安全起见，只用作卡丁车
+# CLIENT_IDS = ["1010016342", "1010016346", "1010016349", "1010016350"]
+CLIENT_IDS = []
+
+
+@unique
+class DevType(Enum):
+    DT_CAR = 1
+    DT_IN_COIN = 2
+    DT_OUT_COIN = 3
+
+
+CLIENT_IDS_GROUP = {
+    # DevType.DT_CAR.value: ["1010016342", "1010016346"],
+    # DevType.DT_IN_COIN.value: ["1010016349"],
+    # DevType.DT_OUT_COIN.value: ["1010016350"],
+}
+
+# id: type
+CLIENT_IDS_DICT = {}
+
+
+def update_client_ids_dict():
+    for g, ids in CLIENT_IDS_GROUP.items():
+        for _id in ids:
+            CLIENT_IDS_DICT[_id] = g
+
+
+update_client_ids_dict()
 
 
 # 把 list 转成 set
@@ -78,16 +108,16 @@ def get_client_ids_from_database(ls) -> set:
 
 # #########################  HTTP   ######################################
 
-HTTP_HOST = '0.0.0.0'   # 同一台机器上访问用 None， 跨机器用 '0.0.0.0'
+HTTP_HOST = '127.0.0.1'   # 跨机器用 '0.0.0.0'
 HTTP_PORT = 5000        # HTTP端口
 
 
 # #########################  JAVA   ######################################
 
 # 板子数据上传地址，POST方法，【端口必须与本应用不一样】
-JAVA_IP = 'http://127.0.0.1:8000/mqtt'
+JAVA_IP = ''    # http://127.0.0.1:8080/mqtt
 # 发送到主服务器的数据超时时间
-JAVA_TIMEOUT = 3
+JAVA_TIMEOUT = 0.2
 # 收到主服务器指令，转发到MQTT，MQTT立即返回，但不代表指定设备已经接收。如果需要知道设备状态，主服务器可以向本程序订阅。不需要的就不发给主服务器了，减轻负担
 JAVA_NEED_RESPONSE = ['us232', 'uart', 'adc', 'dio', 'board']      # relay 应该是不需要的
 
@@ -115,6 +145,8 @@ class Config(object):
 ACTIVATE_DIR = 'C:/mqtt'
 ACTIVATE_CODE_FILE = 'C:/mqtt/zry.txt'
 ACTIVATE_CODE_QRCODE = 'C:/mqtt/qrcode.png'
+ACTIVATE_ERROR_LOG = 'C:/mqtt/error.log'
+ACTIVATE_INFO_LOG = 'C:/mqtt/info.log'
 
 
 # #########################   配置文档  ######################################
@@ -122,6 +154,7 @@ ACTIVATE_CODE_QRCODE = 'C:/mqtt/qrcode.png'
 OUTSIDE_CONFIG_INI = 'C:/mqtt/config.ini'
 OUTSIDE_CONFIG_JSON = 'C:/mqtt/config.json'
 OUTSIDE_CONFIG_CLIENT_IDS = 'C:/mqtt/client_id.ini'
+OUTSIDE_CONFIG_CLIENT_IDS_GROUP = 'C:/mqtt/client_id_group.ini'
 
 
 # #########################   可配置项  ######################################
@@ -148,3 +181,13 @@ ENABLE_INIT_PARAMS = [
 # #########################   调试  ######################################
 
 DEBUG_PRINT = False
+
+LOG_INFO = not DEBUG_PRINT
+
+# 非内测时，数据加密的KEY要修改
+INNER_TESTING = True
+
+
+# #########################   版本  ######################################
+
+VERSION = 1.2

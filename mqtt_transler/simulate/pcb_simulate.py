@@ -1,7 +1,7 @@
 from __future__ import print_function
 
 from datetime import datetime
-from multiprocessing import Process, Queue
+from multiprocessing import Queue
 import time
 
 import paho.mqtt.client as mqtt
@@ -42,11 +42,11 @@ cmd_queue = Queue()
 class MqttClient(mqtt.Client):
     def __init__(self, client_id, username, password):
         super().__init__(client_id)
-        self._on_connect = self.on_connect
-        self._on_disconnect = self.on_disconnect
-        self._on_publish = self.on_publish
-        self._on_message = self.on_message
-        self._on_subscribe = self.on_subscribe
+        self.on_connect = self.my_on_connect
+        self.on_disconnect = self.my_on_disconnect
+        self.on_publish = self.my_on_publish
+        self.on_message = self.my_on_message
+        self.on_subscribe = self.my_on_subscribe
         self.username_pw_set(username=username, password=password)
         self.connect('183.230.40.39', port=6002, keepalive=100)
 
@@ -63,7 +63,7 @@ class MqttClient(mqtt.Client):
 
     # 当客户端收到来自服务器的CONNACK响应时的回调。也就是申请连接，服务器返回结果是否成功等
     @staticmethod
-    def on_connect(client, userdata, flags, rc):
+    def my_on_connect(client, userdata, flags, rc):
         print("连接结果:" + mqtt.connack_string(rc))
         #上传数据
         # json_body = json.dumps(body)
@@ -71,12 +71,12 @@ class MqttClient(mqtt.Client):
         # client.publish("$dp", packet, qos=1)  #qos代表服务质量
 
     @staticmethod
-    def on_disconnect(client, userdata, rc):
+    def my_on_disconnect(client, userdata, rc):
         print('disconnect')
 
     # 从服务器接收发布消息时的回调。
     @staticmethod
-    def on_message(client, userdata, msg):
+    def my_on_message(client, userdata, msg):
         print('< on_message {} >'.format(datetime.now().strftime('%H:%M:%S')), end=' ')
         print(msg.topic + " ", msg.payload)
         time.sleep(0.5)
@@ -85,12 +85,12 @@ class MqttClient(mqtt.Client):
             print('publish %s:%s' % (msg.topic, msg.payload))
 
     @staticmethod
-    def on_subscribe(client, userdata, mid, granted_qos):
+    def my_on_subscribe(client, userdata, mid, granted_qos):
         print("On Subscribed: qos = %d" % granted_qos)
 
-    #当消息已经被发送给中间人，on_publish()回调将会被触发
-    # @staticmethod
-    def on_publish(self, client, userdata, mid):
+    # 当消息已经被发送给中间人，on_publish()回调将会被触发
+    @staticmethod
+    def my_on_publish(self, client, userdata, mid):
         print("[on_publish] mid:" + str(mid), client, userdata)
 
     def pub_data_type3(self, ds_id, data):

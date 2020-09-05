@@ -9,6 +9,7 @@
 """
 import hmac
 
+import settings
 from machine_encrypt.system_info import Win32Info
 from machine_encrypt.win_tips import tips_create_code
 
@@ -18,7 +19,7 @@ def get_short_system_info():
     data = Win32Info().collect_my_need()
     l = []
 
-    h = hmac.new(b'zry.2020.lsh.0821', b'begin', digestmod='MD5')  # 传入都是二进制
+    h = hmac.new(b'testing' if settings.INNER_TESTING else b'zry.2020.lsh.0821', b'begin', digestmod='MD5')  # 传入都是二进制
 
     rams = data.setdefault('ram', [])
     for ram in rams:
@@ -32,9 +33,17 @@ def get_short_system_info():
     return h.hexdigest()
 
 
+_KEY = '00000000000000000000000000000000' if settings.INNER_TESTING else '54833875007358518284123687951255'   # 32位，不要改
+
+
 def create_active_code(info):
-    ls = [ord(x) % 10 for x in info]
-    ls = ''.join([str((ls[i] + ls[i+16]) % 10) for i in range(16)])
+    '''
+    把32位序列号加密成4*4注册码
+    :param info: 32位字符串
+    :return: xxxx-xxxx-xxxx-xxxx 数字
+    '''
+    ls = [ord(x) + int(k) for x, k in zip(info, _KEY)]
+    ls = ''.join([str((x + y) % 10) for x, y in zip(ls[0:16], ls[16:32])])
     return '-'.join([ls[i*4:(i+1)*4] for i in range(4)])
 
 

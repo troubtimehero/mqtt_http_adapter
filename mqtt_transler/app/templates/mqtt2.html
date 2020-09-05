@@ -51,7 +51,7 @@
                 document.getElementById("result").innerHTML = "返回结果：" + xml_http.responseText;
             }
         }
-        xml_http.open("POST", '/mqtt', true);
+        xml_http.open("POST", '/mqtt2', true);
         xml_http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xml_http.send(get_data());
     };
@@ -74,33 +74,41 @@
 
 <form action="" method="post" novalidate="novalidate">
 <!--    #用来实现在配置中激活的csrf保护-->
-<!--    -->
+<!--    {{ form.hidden_tag() }}-->
     <p>
-        <label for="cmd_type">发送类型</label><br>
-        <select id="cmd_type" name="cmd_type" onchange="changeType()"><option value="through">透传</option><option value="out_coin">退币</option><option value="relay_on">继电器常通</option><option value="relay_off">继电器常断</option><option value="relay_second">继电器通N秒</option><option value="car_single">卡丁车单人(payload={"order":订单, "circle":圈数})</option><option value="car_race">卡丁车多人赛(client_id: 圈数(0强制停止), payload:{ id1:订单号1,id2:订单号2, ... })</option></select>
+        {{ form.cmd_type.label }}<br>
+        {{ form.cmd_type(id='cmd_type', onchange= "changeType()") }}
     </p>
     <p>
-        <label for="client_id">client_id</label><br>
-        <input id="client_id" name="client_id" placeholder="请输入设备ID" size="32" type="text" value="">
-            </p>
+        {{ form.client_id.label }}<br>
+        {{ form.client_id(size=32) }}
+        {% for error in form.client_id.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
     <p id="p_func">
-        <label for="func">function</label><br>
-        <input id="func" name="func" placeholder="请输入功能（透传时必填）" size="32" type="text" value="">
-            </p>
-    <p></p>
-    <p id="p_check"><input id="no_check" name="no_check" type="checkbox" value="y"><label for="no_check">[不]验证指令是否有效（未录入的新指令需要使用）</label></p>
+        {{ form.func.label }}<br>
+        {{ form.func(size=32) }}
+        {% for error in form.func.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
+    <p id="p_check">{{ form.no_check() }}{{ form.no_check.label }}</p>
     <p>
-        <label for="payload">payload</label><br>
-        <input id="payload" name="payload" placeholder="指令内容，没有可以为空" size="32" type="text" value="">
-            </p>
-    <p></p>
+        {{ form.payload.label }}<br>
+        {{ form.payload(size=32) }}
+        {% for error in form.payload.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
     <p>
-        <label for="password">管理员密码</label><br>
-        <input id="password" name="password" size="32" type="password" value="">
-            </p>
-    <p></p>
+        {{ form.password.label }}<br>
+        {{ form.password(size=32) }}
+        {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+        {% endfor %}
+    </p>
     <p>
-<!--        <input id="submit" name="submit" type="submit" value="发送">-->
+<!--        {{ form.submit() }}-->
         <button type="button" onclick="loadXMLDoc()">发送</button>
     </p>
 </form>

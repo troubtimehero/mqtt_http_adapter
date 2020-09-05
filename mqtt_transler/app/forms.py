@@ -12,7 +12,7 @@ from flask_wtf import FlaskForm
 from wtforms import SelectField, StringField, IntegerField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import DataRequired, NumberRange
 
-from my_mqtt.mqtt_func import FUNC_TYPE
+from my_mqtt.mqtt_func import HTTP_FUNC_TYPE
 
 
 class NoRequiredForm(FlaskForm):
@@ -23,8 +23,8 @@ class NoRequiredForm(FlaskForm):
 
 
 class SendCommandField(NoRequiredForm):
-    # cmd_type = RadioField('发送类型', choices=[('透传', 'through'), ('封装', 'package')], default='through')
-    cmd_type = SelectField('发送类型', choices=FUNC_TYPE)
+    cmd_type = SelectField('发送类型', choices=[(k, v[1]) for k, v in HTTP_FUNC_TYPE.items()], default='through')
+    # cmd_type = SelectField('发送类型', choices=HTTP_FUNC_TYPE)
     client_id = IntegerField('client_id',
                              validators=[DataRequired(message='请输入设备ID'), NumberRange(message='设备ID为纯数字')],
                              render_kw={'placeholder': '请输入设备ID'})

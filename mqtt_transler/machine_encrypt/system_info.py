@@ -11,6 +11,8 @@
 
 
 import platform
+import socket
+
 import win32com
 import wmi
 
@@ -148,6 +150,21 @@ class Win32Info(object):
         data.update(self.get_disk_info())
         # 最后返回一个数据字典
         return data
+
+
+def get_host_ip():
+    """
+    查询本机ip地址
+    :return:
+    """
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+
+    return ip
 
 
 if __name__ == "__main__":

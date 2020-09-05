@@ -1,13 +1,13 @@
 # 从app模块中导入app应用
-from main import main
+from mqtt_main import main
 import win32serviceutil
 import win32service
 import win32event
 import winerror
-import win32timezone    # 打包完执行是需要
 import servicemanager
 import sys
 import os
+import win32timezone    # 打包完执行是需要，不可删除
 
 
 class WinPollManager(win32serviceutil.ServiceFramework):

@@ -7,6 +7,7 @@
 文件说明：
 
 """
+import os
 import sys
 
 import settings
@@ -14,7 +15,7 @@ from machine_encrypt.activation import create_active_code, get_short_system_info
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1 and sys.argv[1] in ['0', '1']:
+    if len(sys.argv) > 1 and sys.argv[1] in ['0', '1', '2']:
         want = sys.argv[1]
     else:
         while True:
@@ -23,19 +24,24 @@ if __name__ == '__main__':
             if want == '0' or want == '1':
                 break
 
-    if want == '1':     # 直接写入系统，不需要输入序列号
+    if want == '1' or want == '2':     # 直接写入系统，不需要输入序列号
         code = create_active_code(get_short_system_info())
+        if not os.path.exists(settings.ACTIVATE_DIR):
+            os.mkdir(settings.ACTIVATE_DIR)
         with open(settings.ACTIVATE_CODE_FILE, 'w') as f:
             f.writelines([code])
             print(f'注册码：{code}\n已录入系统，可在 {settings.ACTIVATE_CODE_FILE} 查看')
-            input()
+            if want == '1':
+                input()
     else:
         print('请输入32位序列号：')
         while True:
             try:
-                code = create_active_code(input())
+                _input = input()
+                assert len(_input) == 32, 'input len not 32'
+                code = create_active_code(_input)
                 print(f'注册码为：{code}')
                 print(f'在待激活系统输入注册提示框，或写入 {settings.ACTIVATE_CODE_FILE} 第一行即可')
             except Exception:
-                print('输入有误，请输入32位序列号')
+                print(f'【输入有误】您输入的序列号长度为{len(_input)}，请输入32位序列号')
                 pass
